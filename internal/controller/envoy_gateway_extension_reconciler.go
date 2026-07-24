@@ -375,7 +375,7 @@ func (r *EnvoyGatewayExtensionReconciler) buildWasmConfigs(ctx context.Context, 
 	// unique paths by key
 	paths := lo.UniqBy(allPaths, func(e lo.Entry[string, []machinery.Targetable]) string { return e.Key })
 
-	wasmActionSets := kuadrantgatewayapi.GroupedHTTPRouteMatchConfigs{}
+	wasmActionSets := kuadrantgatewayapi.GrouppedHTTPRouteMatchConfigs{}
 	celValidationIssues := celvalidator.NewIssueCollection()
 
 	tracer := controller.TracerFromContext(ctx)

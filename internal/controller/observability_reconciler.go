@@ -100,9 +100,6 @@ func dnsOpMonitorBuild(ns string) *monitoringv1.ServiceMonitor {
 					"control-plane": "dns-operator-controller-manager",
 				},
 			},
-			NamespaceSelector: monitoringv1.NamespaceSelector{
-				MatchNames: []string{ns},
-			},
 		},
 	}
 }
@@ -132,9 +129,6 @@ func authOpMonitorBuild(ns string) *monitoringv1.ServiceMonitor {
 					"control-plane": "authorino-operator",
 				},
 			},
-			NamespaceSelector: monitoringv1.NamespaceSelector{
-				MatchNames: []string{ns},
-			},
 		},
 	}
 }
@@ -163,9 +157,6 @@ func limitOpMonitorBuild(ns string) *monitoringv1.ServiceMonitor {
 				MatchLabels: map[string]string{
 					"control-plane": "controller-manager",
 				},
-			},
-			NamespaceSelector: monitoringv1.NamespaceSelector{
-				MatchNames: []string{ns},
 			},
 		},
 	}
@@ -247,9 +238,6 @@ func istioPodMonitorBuild(ns string) *monitoringv1.PodMonitor {
 					},
 				},
 			},
-			NamespaceSelector: monitoringv1.NamespaceSelector{
-				MatchNames: []string{ns},
-			},
 		},
 	}
 }
@@ -322,9 +310,6 @@ func authorinoMonitorBuild(ns string) *monitoringv1.ServiceMonitor {
 					"app.kubernetes.io/part-of":   "authorino",
 				},
 			},
-			NamespaceSelector: monitoringv1.NamespaceSelector{
-				MatchNames: []string{ns},
-			},
 		},
 	}
 }
@@ -351,9 +336,6 @@ func envoyStatsMonitorBuild(ns string) *monitoringv1.PodMonitor {
 				MatchLabels: map[string]string{
 					"app": "kuadrant-ingressgateway",
 				},
-			},
-			NamespaceSelector: monitoringv1.NamespaceSelector{
-				MatchNames: []string{ns},
 			},
 		},
 	}

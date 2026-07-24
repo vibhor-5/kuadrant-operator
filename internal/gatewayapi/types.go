@@ -120,15 +120,15 @@ func pathMatchCount(pathMatch *gatewayapiv1.HTTPPathMatch) int {
 	return 0
 }
 
-type GroupedHTTPRouteMatchConfigs map[string]SortableHTTPRouteMatchConfigs
+type GrouppedHTTPRouteMatchConfigs map[string]SortableHTTPRouteMatchConfigs
 
-func (g *GroupedHTTPRouteMatchConfigs) Add(key string, configs ...HTTPRouteMatchConfig) {
+func (g *GrouppedHTTPRouteMatchConfigs) Add(key string, configs ...HTTPRouteMatchConfig) {
 	for _, config := range configs {
 		(*g)[key] = append((*g)[key], config)
 	}
 }
 
-func (g *GroupedHTTPRouteMatchConfigs) Sorted() GroupedHTTPRouteMatchConfigs {
+func (g *GrouppedHTTPRouteMatchConfigs) Sorted() GrouppedHTTPRouteMatchConfigs {
 	if g == nil {
 		return nil
 	}
