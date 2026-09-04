@@ -14,7 +14,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	gatewayapiv1 "sigs.k8s.io/gateway-api/apis/v1"
-	gatewayapiv1alpha2 "sigs.k8s.io/gateway-api/apis/v1alpha2"
 
 	authorinov1beta3 "github.com/kuadrant/authorino/api/v1beta3"
 	kuadrantv1 "github.com/kuadrant/kuadrant-operator/api/v1"
@@ -95,7 +94,7 @@ func (r *AccessPolicyReconciler) Reconcile(ctx context.Context, request reconcil
 	for i := range targetedPolicies {
 		p := &targetedPolicies[i]
 
-		var currentTargetRef gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName
+		var currentTargetRef gatewayapiv1.LocalPolicyTargetReferenceWithSectionName
 		for _, targetRef := range p.Spec.TargetRefs {
 			if string(targetRef.Kind) == gatewayKind && string(targetRef.Name) == gateway.Name {
 				currentTargetRef = targetRef
@@ -104,7 +103,7 @@ func (r *AccessPolicyReconciler) Reconcile(ctx context.Context, request reconcil
 		}
 
 		if p.Spec.Action == v1alpha1.ActionTypeExternalAuth {
-			r.updateStatus(ctx, p, currentTargetRef, v1alpha1.PolicyConditionAccepted, metav1.ConditionFalse, gatewayapiv1alpha2.PolicyConditionReason("Invalid"), "ExternalAuth action is out of scope and not supported")
+			r.updateStatus(ctx, p, currentTargetRef, v1alpha1.PolicyConditionAccepted, metav1.ConditionFalse, gatewayapiv1.PolicyConditionReason("Invalid"), "ExternalAuth action is out of scope and not supported")
 			continue
 		}
 
@@ -352,11 +351,11 @@ func (r *AccessPolicyReconciler) Reconcile(ctx context.Context, request reconcil
 	}
 	desiredAuthPolicy.Labels["app.kubernetes.io/managed-by"] = "accesspolicy-extension"
 
-	desiredAuthPolicy.Spec.TargetRef = gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName{
-		LocalPolicyTargetReference: gatewayapiv1alpha2.LocalPolicyTargetReference{
+	desiredAuthPolicy.Spec.TargetRef = gatewayapiv1.LocalPolicyTargetReferenceWithSectionName{
+		LocalPolicyTargetReference: gatewayapiv1.LocalPolicyTargetReference{
 			Group: "gateway.networking.k8s.io",
 			Kind:  gatewayKind,
-			Name:  gatewayapiv1alpha2.ObjectName(gateway.Name),
+			Name:  gatewayapiv1.ObjectName(gateway.Name),
 		},
 	}
 	desiredAuthPolicy.Spec.AuthScheme = &kuadrantv1.AuthSchemeSpec{
@@ -372,14 +371,14 @@ func (r *AccessPolicyReconciler) Reconcile(ctx context.Context, request reconcil
 	if err != nil {
 		// Update all valid policies with ProgramError
 		for _, p := range validPolicies {
-			var currentTargetRef gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName
+			var currentTargetRef gatewayapiv1.LocalPolicyTargetReferenceWithSectionName
 			for _, targetRef := range p.Spec.TargetRefs {
 				if string(targetRef.Kind) == gatewayKind && string(targetRef.Name) == gateway.Name {
 					currentTargetRef = targetRef
 					break
 				}
 			}
-			r.updateStatus(ctx, p, currentTargetRef, v1alpha1.PolicyConditionAccepted, metav1.ConditionFalse, gatewayapiv1alpha2.PolicyConditionReason("ProgramError"), "ProgramError: "+err.Error())
+			r.updateStatus(ctx, p, currentTargetRef, v1alpha1.PolicyConditionAccepted, metav1.ConditionFalse, gatewayapiv1.PolicyConditionReason("ProgramError"), "ProgramError: "+err.Error())
 		}
 		return reconcile.Result{}, err
 	}
@@ -388,7 +387,7 @@ func (r *AccessPolicyReconciler) Reconcile(ctx context.Context, request reconcil
 
 	// Update successful status for all valid policies
 	for _, p := range validPolicies {
-		var currentTargetRef gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName
+		var currentTargetRef gatewayapiv1.LocalPolicyTargetReferenceWithSectionName
 		for _, targetRef := range p.Spec.TargetRefs {
 			if string(targetRef.Kind) == gatewayKind && string(targetRef.Name) == gateway.Name {
 				currentTargetRef = targetRef
@@ -401,8 +400,8 @@ func (r *AccessPolicyReconciler) Reconcile(ctx context.Context, request reconcil
 	return reconcile.Result{}, nil
 }
 
-func (r *AccessPolicyReconciler) updateStatus(ctx context.Context, policy *v1alpha1.AccessPolicy, targetRef gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName, conditionType gatewayapiv1alpha2.PolicyConditionType, status metav1.ConditionStatus, reason gatewayapiv1alpha2.PolicyConditionReason, message string) {
-	var ancestor *gatewayapiv1alpha2.PolicyAncestorStatus
+func (r *AccessPolicyReconciler) updateStatus(ctx context.Context, policy *v1alpha1.AccessPolicy, targetRef gatewayapiv1.LocalPolicyTargetReferenceWithSectionName, conditionType gatewayapiv1.PolicyConditionType, status metav1.ConditionStatus, reason gatewayapiv1.PolicyConditionReason, message string) {
+	var ancestor *gatewayapiv1.PolicyAncestorStatus
 
 	gwGroup := gatewayapiv1.Group("gateway.networking.k8s.io")
 	gwKind := gatewayapiv1.Kind("Gateway")
@@ -431,7 +430,7 @@ func (r *AccessPolicyReconciler) updateStatus(ctx context.Context, policy *v1alp
 	}
 
 	if ancestor == nil {
-		policy.Status.Ancestors = append(policy.Status.Ancestors, gatewayapiv1alpha2.PolicyAncestorStatus{
+		policy.Status.Ancestors = append(policy.Status.Ancestors, gatewayapiv1.PolicyAncestorStatus{
 			AncestorRef:    ancestorRef,
 			ControllerName: "extensions.kuadrant.io/accesspolicy-controller",
 		})

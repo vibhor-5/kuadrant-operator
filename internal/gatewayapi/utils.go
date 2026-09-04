@@ -173,15 +173,15 @@ func IsListenerReady(listener *gatewayapiv1.Listener, gateway *gatewayapiv1.Gate
 }
 
 func IsPolicyAccepted(policy Policy) bool {
-	condition := meta.FindStatusCondition(policy.GetStatus().GetConditions(), string(gatewayapiv1alpha2.PolicyConditionAccepted))
+	condition := meta.FindStatusCondition(policy.GetStatus().GetConditions(), string(gatewayapiv1.PolicyConditionAccepted))
 	return condition != nil && condition.Status == metav1.ConditionTrue
 }
 
 // PolicyStatusConditionsFromAncestor returns the conditions from a policy status for a given ancestor
-func PolicyStatusConditionsFromAncestor(policyStatus gatewayapiv1alpha2.PolicyStatus, controllerName gatewayapiv1.GatewayController, ancestor gatewayapiv1.ParentReference, defaultNamespace gatewayapiv1.Namespace) []metav1.Condition {
-	if status, found := lo.Find(policyStatus.Ancestors, func(a gatewayapiv1alpha2.PolicyAncestorStatus) bool {
-		defaultGroup := gatewayapiv1alpha2.Group(gatewayapiv1.GroupName)
-		defaultKind := gatewayapiv1alpha2.Kind(machinery.GatewayGroupKind.Kind)
+func PolicyStatusConditionsFromAncestor(policyStatus gatewayapiv1.PolicyStatus, controllerName gatewayapiv1.GatewayController, ancestor gatewayapiv1.ParentReference, defaultNamespace gatewayapiv1.Namespace) []metav1.Condition {
+	if status, found := lo.Find(policyStatus.Ancestors, func(a gatewayapiv1.PolicyAncestorStatus) bool {
+		defaultGroup := gatewayapiv1.Group(gatewayapiv1.GroupName)
+		defaultKind := gatewayapiv1.Kind(machinery.GatewayGroupKind.Kind)
 		defaultSectionName := gatewayapiv1.SectionName("")
 		ref := a.AncestorRef
 		return a.ControllerName == controllerName &&
@@ -196,7 +196,33 @@ func PolicyStatusConditionsFromAncestor(policyStatus gatewayapiv1alpha2.PolicySt
 	return nil
 }
 
-func EqualLocalPolicyTargetReferencesWithSectionName(a, b []gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName) bool {
+func PolicyStatusConditionsFromAncestorV1Alpha2(policyStatus gatewayapiv1alpha2.PolicyStatus, controllerName gatewayapiv1.GatewayController, ancestor gatewayapiv1.ParentReference, defaultNamespace gatewayapiv1.Namespace) []metav1.Condition {
+	if status, found := lo.Find(policyStatus.Ancestors, func(a gatewayapiv1.PolicyAncestorStatus) bool {
+		defaultGroup := gatewayapiv1.Group(gatewayapiv1.GroupName)
+		defaultKind := gatewayapiv1.Kind(machinery.GatewayGroupKind.Kind)
+		defaultSectionName := gatewayapiv1.SectionName("")
+		ref := a.AncestorRef
+		return a.ControllerName == controllerName &&
+			ptr.Deref(ref.Group, defaultGroup) == ptr.Deref(ancestor.Group, defaultGroup) &&
+			ptr.Deref(ref.Kind, defaultKind) == ptr.Deref(ancestor.Kind, defaultKind) &&
+			ptr.Deref(ref.Namespace, defaultNamespace) == ptr.Deref(ancestor.Namespace, defaultNamespace) &&
+			ref.Name == ancestor.Name &&
+			ptr.Deref(ref.SectionName, defaultSectionName) == ptr.Deref(ancestor.SectionName, defaultSectionName)
+	}); found {
+		return status.Conditions
+	}
+	return nil
+}
+
+func EqualLocalPolicyTargetReferencesWithSectionName(a, b []gatewayapiv1.LocalPolicyTargetReferenceWithSectionName) bool {
+	return len(a) == len(b) && lo.EveryBy(a, func(aTargetRef gatewayapiv1.LocalPolicyTargetReferenceWithSectionName) bool {
+		return lo.SomeBy(b, func(bTargetRef gatewayapiv1.LocalPolicyTargetReferenceWithSectionName) bool {
+			return aTargetRef.Group == bTargetRef.Group && aTargetRef.Kind == bTargetRef.Kind && aTargetRef.Name == bTargetRef.Name && ptr.Deref(aTargetRef.SectionName, gatewayapiv1.SectionName("")) == ptr.Deref(bTargetRef.SectionName, gatewayapiv1.SectionName(""))
+		})
+	})
+}
+
+func EqualLocalPolicyTargetReferencesWithSectionNameV1Alpha2(a, b []gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName) bool {
 	return len(a) == len(b) && lo.EveryBy(a, func(aTargetRef gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName) bool {
 		return lo.SomeBy(b, func(bTargetRef gatewayapiv1alpha2.LocalPolicyTargetReferenceWithSectionName) bool {
 			return aTargetRef.Group == bTargetRef.Group && aTargetRef.Kind == bTargetRef.Kind && aTargetRef.Name == bTargetRef.Name && ptr.Deref(aTargetRef.SectionName, gatewayapiv1alpha2.SectionName("")) == ptr.Deref(bTargetRef.SectionName, gatewayapiv1alpha2.SectionName(""))

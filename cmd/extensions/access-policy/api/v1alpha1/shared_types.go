@@ -14,86 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// IMPORTANT: Run "make generate" to regenerate code after modifying this file
-
 package v1alpha1
 
-// HTTPPathMatch describes how to select a HTTP route by matching the HTTP request path.
-type HTTPPathMatch struct {
-	// Type specifies how to match against the path Value.
-	// +optional
-	// +kubebuilder:default=PathPrefix
-	Type *PathMatchType `json:"type,omitempty"`
-
-	// Value of the HTTP path to match against.
-	// +optional
-	// +kubebuilder:default=""
-	// +kubebuilder:validation:MaxLength=1024
-	Value *string `json:"value,omitempty"`
-}
-
-// PathMatchType specifies the semantics of how HTTP paths should be compared.
-// +kubebuilder:validation:Enum=Exact;PathPrefix;RegularExpression
-type PathMatchType string
-
-const (
-	// PathMatchExact matches the exact HTTP path.
-	PathMatchExact PathMatchType = "Exact"
-
-	// PathMatchPathPrefix matches based on a URL path prefix split by `/`.
-	PathMatchPathPrefix PathMatchType = "PathPrefix"
-
-	// PathMatchRegularExpression matches if the HTTP path matches the specified RE2 regular expression.
-	PathMatchRegularExpression PathMatchType = "RegularExpression"
+import (
+	agenticv1alpha1 "sigs.k8s.io/kube-agentic-networking/api/v1alpha1"
 )
 
-// HTTPHeaderMatch describes how to select a HTTP route by matching HTTP request headers.
-type HTTPHeaderMatch struct {
-	// Type specifies how to match against the value of the header.
-	// +optional
-	// +kubebuilder:default=Exact
-	Type *HeaderMatchType `json:"type,omitempty"`
+// Alias shared HTTP types directly from sigs.k8s.io/kube-agentic-networking/api/v1alpha1
 
-	// Name is the name of the HTTP Header to be matched.
-	// +required
-	Name HTTPHeaderName `json:"name"`
-
-	// Value is the value of HTTP Header to be matched.
-	// +required
-	// +kubebuilder:validation:MinLength=1
-	// +kubebuilder:validation:MaxLength=4096
-	Value string `json:"value"`
-}
-
-// HeaderMatchType specifies the semantics of how HTTP header values should be compared.
-// +kubebuilder:validation:Enum=Exact;RegularExpression
-type HeaderMatchType string
+type HTTPPathMatch = agenticv1alpha1.HTTPPathMatch
+type PathMatchType = agenticv1alpha1.PathMatchType
+type HTTPHeaderMatch = agenticv1alpha1.HTTPHeaderMatch
+type HeaderMatchType = agenticv1alpha1.HeaderMatchType
+type HTTPHeaderName = agenticv1alpha1.HTTPHeaderName
+type HTTPMethod = agenticv1alpha1.HTTPMethod
+type Hostname = agenticv1alpha1.Hostname
+type PortNumber = agenticv1alpha1.PortNumber
 
 const (
-	// HeaderMatchExact matches the exact HTTP header value.
-	HeaderMatchExact HeaderMatchType = "Exact"
-
-	// HeaderMatchRegularExpression matches if the HTTP header value matches the specified RE2 regular expression.
-	HeaderMatchRegularExpression HeaderMatchType = "RegularExpression"
+	PathMatchExact               = agenticv1alpha1.PathMatchExact
+	PathMatchPathPrefix          = agenticv1alpha1.PathMatchPathPrefix
+	PathMatchRegularExpression   = agenticv1alpha1.PathMatchRegularExpression
+	HeaderMatchExact             = agenticv1alpha1.HeaderMatchExact
+	HeaderMatchRegularExpression = agenticv1alpha1.HeaderMatchRegularExpression
 )
-
-// HTTPHeaderName is the name of an HTTP header.
-// +kubebuilder:validation:MinLength=1
-// +kubebuilder:validation:MaxLength=256
-// +kubebuilder:validation:Pattern=`^[A-Za-z0-9!#$%&'*+\-.^_\x60|~]+$`
-type HTTPHeaderName string
-
-// HTTPMethod describes how to select a HTTP route by matching the HTTP method.
-// +kubebuilder:validation:Enum=GET;HEAD;POST;PUT;DELETE;CONNECT;OPTIONS;TRACE;PATCH
-type HTTPMethod string
-
-// Hostname is the fully qualified domain name of a network host.
-// +kubebuilder:validation:MinLength=1
-// +kubebuilder:validation:MaxLength=253
-// +kubebuilder:validation:Pattern=`^(\*\.)?[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$`
-type Hostname string
-
-// PortNumber defines a network port.
-// +kubebuilder:validation:Minimum=1
-// +kubebuilder:validation:Maximum=65535
-type PortNumber int32
